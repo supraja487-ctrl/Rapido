@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            margin: 50px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 10px;
+        }
+
+        input, select {
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        #fareOutput {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #555;
+        }
+
+        #confirmation {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #deleteRide {
+            padding: 10px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        #deleteRide:hover {
+            background-color: #c82333;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #upiSection {
+            margin-top: 20px;
+            display: none;
+        }
+
+        #upiSection input {
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #upiSection button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        #upiSection button:hover {
+            background-color: #0056b3;
+        }
+
+        #paymentStatus {
+            margin-top: 15px;
+            font-size: 18px;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Book a Car Ride</h1>
+
+        <form id="rideForm">
+            <label for="pickup">Pickup Location:</label>
+            <input type="text" id="pickup" placeholder="Enter pickup location">
+
+            <label for="dropoff">Dropoff Location:</label>
+            <input type="text" id="dropoff" placeholder="Enter dropoff location">
+
+            <label for="carType">Select Car Type:</label>
+            <select id="carType">
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+                <option value="Luxury">Luxury</option>
+                <option value="pickup truck">Pickup truck</option>
+                <option value="Coupe">Coupe</option>
+                <option value="Sports car">Sports car</option>
+            </select>
+
+            <label for="pickupDate">Pickup Date:</label>
+            <input type="date" id="pickupDate">
+
+            <label for="pickupTime">Pickup Time:</label>
+            <input type="time" id="pickupTime">
+
+            <label for="dropoffTime">Dropoff Time:</label>
+            <input type="time" id="dropoffTime">
+
+            <button type="button" id="calculateFare">Calculate Fare</button>
+            <p id="fareOutput"></p>
+
+            <button type="submit">Book Now</button>
+        </form>
+
+        <div id="upiSection" class="hidden">
+            <label for="upiId">Enter UPI ID:</label>
+            <input type="text" id="upiId" placeholder="Enter your UPI ID">
+
+            <button id="payViaUPI">Pay via UPI</button>
+            <p id="paymentStatus"></p>
+        </div>
+
+        <div id="confirmation" class="hidden">
+            <h2>Your ride is confirmed!</h2>
+            <p>Driver is on the way to <span id="pickupDisplay"></span> at <span id="pickupTimeDisplay"></span> on <span id="pickupDateDisplay"></span> and will drop you off by <span id="dropoffTimeDisplay"></span></p>
+            <button id="deleteRide">Cancel Ride</button>
+        </div>
+    </div>
+
+    <script>
+        // Mock function to calculate fare based on locations and car type (in a real app, use an API)
+        function calculateFare(pickup, dropoff, carType) {
+            const baseFare = 50;
+            const perKmRate = 10;
+            const distance = Math.floor(Math.random() * 10) + 1; // random distance for example
+
+            // Adjust fare based on car type
+            let carTypeMultiplier = 1;
+            if (carType === 'SUV') {
+                carTypeMultiplier = 1.5;
+            } else if (carType === 'Luxury') {
+                carTypeMultiplier = 2;
+            }
+
+            return (baseFare + (distance * perKmRate)) * carTypeMultiplier;
+        }
+
+        // Event listener for 'Calculate Fare' button
+        document.getElementById('calculateFare').addEventListener('click', function() {
+            const pickup = document.getElementById('pickup').value;
+            const dropoff = document.getElementById('dropoff').value;
+            const carType = document.getElementById('carType').value;
+
+            if (pickup && dropoff && carType) {
+                const fare = calculateFare(pickup, dropoff, carType);
+                document.getElementById('fareOutput').textContent = `Estimated Fare for ${carType}: ₹${fare}`;
+                document.getElementById('upiSection').style.display = 'block'; // Show UPI section after fare is calculated
+            } else {
+                alert('Please enter pickup, dropoff locations and select a car type.');
+            }
+        });
+
+        // Event listener for form submission (booking ride)
+        document.getElementById('rideForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent page reload on form submission
+
+            const pickup = document.getElementById('pickup').value;
+            const dropoff = document.getElementById('dropoff').value;
+            const pickupTime = document.getElementById('pickupTime').value;
+            const dropoffTime = document.getElementById('dropoffTime').value;
+            const pickupDate = document.getElementById('pickupDate').value;
+
+            if (pickup && dropoff && pickupTime && dropoffTime && pickupDate) {
+                document.getElementById('pickupDisplay').textContent = pickup;
+                document.getElementById('pickupTimeDisplay').textContent = pickupTime;
+                document.getElementById('pickupDateDisplay').textContent = pickupDate;
+                document.getElementById('dropoffTimeDisplay').textContent = dropoffTime;
+                document.getElementById('confirmation').style.display = 'block';
+                document.getElementById('rideForm').reset();
+            } else {
+                alert('Please enter all fields (pickup, dropoff locations, date, and times).');
+            }
+        });
+
+        // Event listener for 'Pay via UPI' button
+        document.getElementById('payViaUPI').addEventListener('click', function() {
+            const upiId = document.getElementById('upiId').value;
+
+            if (upiId) {
+                // Simulate UPI payment processing
+                setTimeout(function() {
+                    document.getElementById('paymentStatus').textContent = 'Payment Successful via UPI!';
+                    document.getElementById('upiSection').style.display = 'none'; // Hide UPI section after payment
+                }, 1000);
+            } else {
+                alert('Please enter a valid UPI ID.');
+            }
+        });
+
+        // Event listener for 'Delete Ride' button
+        document.getElementById('deleteRide').addEventListener('click', function() {
+            document.getElementById('confirmation').style.display = 'none';
+            alert('Your ride has been canceled.');
+        });
+    </script>
+</body>
+</html>
